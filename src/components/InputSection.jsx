@@ -1,6 +1,7 @@
 // components/InputSection.jsx
 import React, { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
+import { toast } from "react-hot-toast"; // Import toast
 
 const InputSection = ({ onGenerate, loading }) => {
   const [studentId, setStudentId] = useState("");
@@ -10,8 +11,13 @@ const InputSection = ({ onGenerate, loading }) => {
     e.preventDefault();
     if (studentId && semesterId) {
       onGenerate(studentId.trim(), semesterId.trim());
+      toast.success("Generating marksheet...", {
+        position: "top-center",
+      }); // Show success toast on submission
     } else {
-      alert("Please fill out both fields.");
+      toast.error("Please fill out both fields.", {
+        position: "top-center",
+      }); // Show error toast if fields are empty
     }
   };
 
@@ -24,6 +30,7 @@ const InputSection = ({ onGenerate, loading }) => {
         <input
           type="text"
           value={studentId}
+          placeholder="XXX-XX-XXXX"
           onChange={(e) => setStudentId(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -35,6 +42,7 @@ const InputSection = ({ onGenerate, loading }) => {
         <input
           type="text"
           value={semesterId}
+          placeholder="242 (for Fall 2024)"
           onChange={(e) => setSemesterId(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />

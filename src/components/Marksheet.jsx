@@ -1,11 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaDownload } from "react-icons/fa";
+import { TbError404 } from "react-icons/tb";
+
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import StudentInfo from "./StudentInfo";
+import CourseList from "./CourseList";
+import UniversityInfo from "./UniversityInfo";
+import ResultSummary from "./ResultSummary";
 
-const Marksheet = ({ data, onBack }) => {
+const Marksheet = ({ data, basicInfo, onBack }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768); // Mobile view breakpoint
+    };
+
+    handleResize(); // Check initially
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if (!data || data.length === 0) {
+    return (
+      <p className="flex justify-center items-center gap-2">
+        <span className="text-4xl">
+          <TbError404 />
+        </span>
+        Result Not Found!
+      </p>
+    );
+  }
+
   const totalCredits = data.reduce(
-    (acc, course) => acc + course.totalCredit,
+    (acc, course) => acc + (course.totalCredit || 0),
     0
   );
   const totalCourses = data.length;
@@ -37,99 +66,42 @@ const Marksheet = ({ data, onBack }) => {
   };
 
   return (
-    <div className="bg-gray-50 p-6 rounded-xl shadow-lg" id="marksheet-content">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-semibold text-gray-800">
-          University Name
-        </h1>
-        <p className="text-gray-600">Official Academic Transcript</p>
-      </div>
-
-      {/* Student Information */}
-      <div className="mb-6">
-        <p className="text-sm text-gray-700">
-          <strong>Student Name:</strong> John Doe
-        </p>
-        <p className="text-sm text-gray-700">
-          <strong>Student ID:</strong> 12345678
-        </p>
-        <p className="text-sm text-gray-700">
-          <strong>Semester:</strong> Spring 2025
-        </p>
-      </div>
-
-      {/* Back Button */}
-      <button
-        onClick={onBack}
-        className="flex items-center text-blue-500 hover:text-blue-700 mb-4"
+    <div className="relative">
+      {isMobile && (
+        <div className="fixed bottom-2 left-4 right-4 bg-yellow-200 text-yellow-800 text-sm p-3 rounded-lg shadow-lg z-50 text-center">
+          📱 For better experience and downloading, please switch to desktop
+          view!
+        </div>
+      )}
+      <div
+        className="bg-white p-8 rounded-lg shadow-md font-serif"
+        id="marksheet-content"
       >
-        <FaArrowLeft className="mr-2" /> Back
-      </button>
+        {/* UniversityInfo */}
+        <UniversityInfo />
 
-      {/* Courses Table */}
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full border-collapse border border-gray-300 text-sm">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 p-2 text-left">
-                Course Code
-              </th>
-              <th className="border border-gray-300 p-2 text-left">
-                Course Title
-              </th>
-              <th className="border border-gray-300 p-2 text-left">Credits</th>
-              <th className="border border-gray-300 p-2 text-left">Grade</th>
-              <th className="border border-gray-300 p-2 text-left">Point</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((course, index) => (
-              <tr
-                key={index}
-                className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}
-              >
-                <td className="border border-gray-300 p-2">
-                  {course.customCourseId}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {course.courseTitle}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {course.totalCredit}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {course.gradeLetter}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {course.pointEquivalent}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Student Information */}
+        <StudentInfo data={data} basicInfo={basicInfo} />
+
+        {/* Summary Section */}
+        <ResultSummary
+          totalCredits={totalCredits}
+          totalCourses={totalCourses}
+          cgpa={cgpa}
+          gradeLetter={gradeLetter}
+        />
+
+        {/* Courses Table */}
+        <CourseList data={data} />
+
+        {/* Download Button */}
+        <button
+          onClick={handleDownload}
+          className="mt-6 w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 flex items-center justify-center"
+        >
+          <FaDownload className="mr-2" /> Download PDF
+        </button>
       </div>
-
-      {/* Summary Section */}
-      <div className="bg-blue-50 p-4 rounded-lg mt-6 shadow">
-        <p className="text-lg font-bold text-blue-700">Summary</p>
-        <p className="text-gray-700">
-          Total Credits: {totalCredits.toFixed(2)}
-        </p>
-        <p className="text-gray-700">Total Courses: {totalCourses}</p>
-        <p className="text-gray-700">
-          CGPA: {cgpa.toFixed(2)} (
-          <span className="font-semibold">{gradeLetter}</span>)
-        </p>
-      </div>
-
-      {/* Download Button */}
-      <button
-        onClick={handleDownload}
-        className="mt-4 flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-      >
-        <FaDownload className="mr-2" /> Download PDF
-      </button>
     </div>
   );
 };

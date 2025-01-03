@@ -1,13 +1,25 @@
-// utils/api.js
 import axios from "axios";
 
 export const fetchStudentData = async (studentId, semesterId) => {
-  const apiUrl = `http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
-  const response = await axios.get(apiUrl);
+  try {
+    const apiUrl = `http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
+    const studentInfoUrl = `http://software.diu.edu.bd:8006/result/studentInfo?studentId=${studentId}`;
 
-  if (response.status !== 200) {
-    throw new Error("Failed to fetch data. Please check the entered IDs.");
+    const [resultResponse, infoResponse] = await Promise.all([
+      axios.get(apiUrl),
+      axios.get(studentInfoUrl),
+    ]);
+
+    if (resultResponse.status !== 200 || infoResponse.status !== 200) {
+      throw new Error("Failed to fetch data. Please check the entered IDs.");
+    }
+
+    return {
+      result: resultResponse.data,
+      basicInfo: infoResponse.data,
+    };
+  } catch (error) {
+    console.error("Error fetching student data:", error.message);
+    throw error; // Re-throw the error to handle it in the calling function
   }
-
-  return response.data;
 };
