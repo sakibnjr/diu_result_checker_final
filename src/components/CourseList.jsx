@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaBook, FaGraduationCap } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
+import { TbSum } from "react-icons/tb";
+import { BsJournalCode } from "react-icons/bs";
 
 const CourseList = ({ data }) => {
-  if (!data || data.length === 0) {
-    return <p className="text-gray-500">No courses available.</p>;
-  }
+  const [expandedCourseId, setExpandedCourseId] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768); // Mobile view breakpoint
+    };
+
+    handleResize(); // Check initially
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Function to map grade letters to emojis
   const getEmojiForGrade = (grade) => {
@@ -32,106 +43,124 @@ const CourseList = ({ data }) => {
     }
   };
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-    },
+  const toggleCourseDetails = (courseId) => {
+    setExpandedCourseId((prev) => (prev === courseId ? null : courseId));
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
-  };
+  if (!data || data.length === 0) {
+    return <p>No courses available.</p>;
+  }
 
   return (
-    <div className="overflow-x-auto my-8">
-      <motion.table
-        className="w-full border-collapse bg-white rounded-lg shadow-md overflow-hidden hidden md:table"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <thead className="">
-          <tr className="bg-blue-50 text-blue-900">
-            <th className="p-3 text-left font-bold ">Course Code</th>
-            <th className="p-3 text-left font-bold">Course Title</th>
-            <th className="p-3 text-left font-bold ">Credits</th>
-            <th className="p-3 text-left font-bold">Grade</th>
-            <th className="p-3 text-left font-bold">Point</th>
-          </tr>
-        </thead>
-        <motion.tbody
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+    <>
+      {/* Desktop View - Table */}
+      {!isMobile && (
+        <motion.table
+          className="w-full border-collapse bg-white rounded-lg shadow-md overflow-hidden mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          {data.map((course, index) => (
-            <motion.tr
-              key={index}
-              variants={itemVariants}
-              className={`${
-                index % 2 === 0 ? "bg-gray-50" : "bg-white"
-              } hover:bg-gray-100 transition`}
-            >
-              <td className="p-3 hidden md:table-cell">
-                <FaGraduationCap className="inline-block text-blue-500 mr-2" />
-                {course.customCourseId}
-              </td>
-              <td className="p-3">
-                <FaBook className="inline-block text-green-500 mr-2" />
-                {course.courseTitle}
-              </td>
-              <td className="p-3 hidden md:table-cell">{course.totalCredit}</td>
-              <td className="p-3 flex items-center gap-1">
-                <span>{course.gradeLetter}</span>
-                <span>{getEmojiForGrade(course.gradeLetter)}</span>
-              </td>
-              <td className="p-3">{course.pointEquivalent}</td>
-            </motion.tr>
-          ))}
-        </motion.tbody>
-      </motion.table>
+          <thead>
+            <tr className="bg-blue-50 text-blue-900">
+              <th className="p-3 text-left font-bold">Course Code</th>
+              <th className="p-3 text-left font-bold">Course Title</th>
+              <th className="p-3 text-left font-bold">Credits</th>
+              <th className="p-3 text-left font-bold">Grade</th>
+              <th className="p-3 text-left font-bold">Point</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((course, index) => (
+              <tr
+                key={index}
+                className={`${
+                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                } hover:bg-gray-100 transition`}
+              >
+                <td className="p-3">
+                  <BsJournalCode className="inline-block text-blue-500 mr-2" />
+                  {course.customCourseId}
+                </td>
+                <td className="p-3">{course.courseTitle}</td>
+                <td className="p-3">{course.totalCredit}</td>
+                <td className="p-3 flex items-center gap-1">
+                  {course.gradeLetter} {getEmojiForGrade(course.gradeLetter)}
+                </td>
+                <td className="p-3">{course.pointEquivalent}</td>
+              </tr>
+            ))}
+          </tbody>
+        </motion.table>
+      )}
 
       {/* Mobile View - Card Layout */}
-      <div className="md:hidden">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {data.map((course, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="bg-white p-4 mb-4 rounded-lg shadow-md border-l-4 border-blue-500"
-            >
-              <h3 className="text-lg font-semibold text-gray-900">
-                {course.courseTitle}
-              </h3>
-              <p className="text-gray-600 text-sm">
-                <span className="font-medium">Code:</span>{" "}
-                {course.customCourseId}
-              </p>
-              <p className="text-gray-600 text-sm">
-                <span className="font-medium">Credits:</span>{" "}
-                {course.totalCredit}
-              </p>
-              <p className="text-gray-600 text-sm flex items-center gap-1">
-                <span className="font-medium">Grade:</span> {course.gradeLetter}
-                <span>{getEmojiForGrade(course.gradeLetter)}</span>{" "}
-              </p>
-              <p className="text-rose-500 text-lg font-bold">
-                <span>Point:</span> {course.pointEquivalent}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </div>
+      {isMobile && (
+        <div className="space-y-4">
+          {data.map((course, index) => {
+            const isExpanded = expandedCourseId === course.customCourseId;
+
+            return (
+              <motion.div
+                key={index}
+                className={`bg-white bg-opacity-30 backdrop-blur-md p-5 rounded-xl shadow-lg border-l-4 mt-6 ${
+                  isExpanded ? "border-blue-500" : "border-gray-300"
+                } relative`}
+                onClick={() => toggleCourseDetails(course.customCourseId)}
+              >
+                {/* Default View: Title and Point */}
+                <div className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      {course.courseTitle}
+                    </h3>
+                    <p className="text-rose-500 text-md font-bold flex items-center gap-1">
+                      Point: {course.pointEquivalent}
+                    </p>
+                  </div>
+                  <FaChevronDown
+                    className={`text-xl transition-transform ${
+                      isExpanded ? "rotate-180" : ""
+                    }`}
+                  />
+                </div>
+
+                {/* Expanded View: Additional Details */}
+                {isExpanded && (
+                  <motion.div
+                    className="mt-4 space-y-2"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <p className="text-gray-700 text-sm">
+                      <span className="font-semibold">Course Code:</span>{" "}
+                      <span className="text-gray-900">
+                        {course.customCourseId}
+                      </span>
+                    </p>
+                    <p className="text-gray-700 text-sm">
+                      <span className="font-semibold">Credit:</span>{" "}
+                      <span className="text-gray-900">
+                        {course.totalCredit}
+                      </span>
+                    </p>
+                    <p className="text-gray-700 text-sm flex items-center gap-1">
+                      <span className="font-semibold">Grade:</span>
+                      <span className="text-xl">{course.gradeLetter}</span>
+                      <span className="text-xl">
+                        {getEmojiForGrade(course.gradeLetter)}
+                      </span>
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 };
 

@@ -32,12 +32,6 @@ const StudentInfo = ({ data, basicInfo }) => {
       initial="hidden"
       animate="visible"
     >
-      <motion.h2
-        className="text-2xl font-semibold text-gray-900 mb-5"
-        variants={itemVariants}
-      >
-        Student Information
-      </motion.h2>
       <motion.div
         className="bg-gradient-to-r from-white to-gray-50 rounded-lg shadow-lg p-6"
         variants={itemVariants}
