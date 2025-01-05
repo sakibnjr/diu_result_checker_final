@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaArrowLeft, FaDownload } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion"; // Import for animation
+import { FaDownload } from "react-icons/fa";
 import { TbError404 } from "react-icons/tb";
 
 import jsPDF from "jspdf";
@@ -11,6 +12,7 @@ import ResultSummary from "./ResultSummary";
 
 const Marksheet = ({ data, basicInfo, onBack }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [showCGPA, setShowCGPA] = useState(true); // State for showing CGPA animation
 
   useEffect(() => {
     const handleResize = () => {
@@ -20,6 +22,12 @@ const Marksheet = ({ data, basicInfo, onBack }) => {
     handleResize(); // Check initially
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Automatically hide the CGPA animation after 3 seconds
+    const timer = setTimeout(() => setShowCGPA(false), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!data || data.length === 0) {
@@ -67,6 +75,72 @@ const Marksheet = ({ data, basicInfo, onBack }) => {
 
   return (
     <div className="relative">
+      {/* CGPA Celebration Animation */}
+      <AnimatePresence>
+        {showCGPA && (
+          <motion.div
+            className="absolute md:fixed inset-0 h-screen -top-44 md:top-0 md:h-auto flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-500 bg-opacity-90 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div
+              className="relative text-white text-center p-8 rounded-lg shadow-xl bg-white bg-opacity-10 backdrop-blur-md"
+              initial={{ scale: 0.5, rotate: 0 }}
+              animate={{
+                scale: [0.5, 1.2, 1],
+                rotate: [0, 10, -10, 0],
+              }}
+              exit={{ scale: 0.5, rotate: 90, opacity: 0 }}
+              transition={{
+                duration: 1.2,
+                ease: "easeInOut",
+              }}
+            >
+              {/* Floating Confetti */}
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 bg-white rounded-full"
+                    style={{
+                      top: `${Math.random() * 100}%`,
+                      left: `${Math.random() * 100}%`,
+                    }}
+                    initial={{ y: 0, opacity: 1 }}
+                    animate={{
+                      y: "100vh",
+                      opacity: 0,
+                      scale: [1, 0.5, 1],
+                      rotate: [0, 180, 360],
+                    }}
+                    transition={{
+                      duration: 3,
+                      delay: Math.random() * 2,
+                      repeat: Infinity,
+                    }}
+                  ></motion.div>
+                ))}
+              </motion.div>
+
+              {/* Main Content */}
+              <h1 className="text-5xl font-extrabold mb-4">
+                🎉 SGPA {cgpa.toFixed(2)} 🎉
+              </h1>
+              <p className="text-lg font-medium">
+                You absolutely nailed it! 🥳
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {isMobile && (
         <div className="fixed bottom-2 left-4 right-4 bg-yellow-200 text-yellow-800 text-sm p-3 rounded-lg shadow-lg z-50 text-center">
           📱 For better experience and downloading, please switch to desktop

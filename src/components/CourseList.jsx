@@ -22,22 +22,25 @@ const CourseList = ({ data }) => {
   const getEmojiForGrade = (grade) => {
     switch (grade) {
       case "A+":
-      case "A":
         return "🔥";
+      case "A":
+        return "😍";
       case "A-":
         return "😊";
       case "B+":
+        return "🥲";
       case "B":
         return "😒";
       case "B-":
-        return "😓";
+        return "🥴";
       case "C+":
+        return "😓";
       case "C":
         return "🙁";
       case "D":
         return "😢";
       case "F":
-        return "💔";
+        return "🐸";
       default:
         return "🧐";
     }
