@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // Import for animation
 import { FaDownload } from "react-icons/fa";
 import { TbError404 } from "react-icons/tb";
-
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import StudentInfo from "./StudentInfo";
 import CourseList from "./CourseList";
 import UniversityInfo from "./UniversityInfo";
 import ResultSummary from "./ResultSummary";
+import SgpaAnimation from "./SgpaAnimation";
 
 const Marksheet = ({ data, basicInfo, onBack }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -76,71 +75,9 @@ const Marksheet = ({ data, basicInfo, onBack }) => {
   return (
     <div className="relative">
       {/* CGPA Celebration Animation */}
-      <AnimatePresence>
-        {showCGPA && (
-          <motion.div
-            className="absolute md:fixed inset-0 h-screen -top-44 md:top-0 md:h-auto flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-500 bg-opacity-90 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <motion.div
-              className="relative text-white text-center p-8 rounded-lg shadow-xl bg-white bg-opacity-10 backdrop-blur-md"
-              initial={{ scale: 0.5, rotate: 0 }}
-              animate={{
-                scale: [0.5, 1.2, 1],
-                rotate: [0, 10, -10, 0],
-              }}
-              exit={{ scale: 0.5, rotate: 90, opacity: 0 }}
-              transition={{
-                duration: 1.2,
-                ease: "easeInOut",
-              }}
-            >
-              {/* Floating Confetti */}
-              <motion.div
-                className="absolute inset-0 pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                {Array.from({ length: 30 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-2 h-2 bg-white rounded-full"
-                    style={{
-                      top: `${Math.random() * 100}%`,
-                      left: `${Math.random() * 100}%`,
-                    }}
-                    initial={{ y: 0, opacity: 1 }}
-                    animate={{
-                      y: "100vh",
-                      opacity: 0,
-                      scale: [1, 0.5, 1],
-                      rotate: [0, 180, 360],
-                    }}
-                    transition={{
-                      duration: 3,
-                      delay: Math.random() * 2,
-                      repeat: Infinity,
-                    }}
-                  ></motion.div>
-                ))}
-              </motion.div>
+      <SgpaAnimation showCGPA={showCGPA} cgpa={cgpa} />
 
-              {/* Main Content */}
-              <h1 className="text-5xl font-extrabold mb-4">
-                🎉 SGPA {cgpa.toFixed(2)} 🎉
-              </h1>
-              <p className="text-lg font-medium">
-                You absolutely nailed it! 🥳
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+      {/* Mobile Warning */}
       {isMobile && (
         <div className="fixed bottom-2 left-4 right-4 bg-yellow-200 text-yellow-800 text-sm p-3 rounded-lg shadow-lg z-50 text-center">
           📱 For better experience and downloading, please switch to desktop
@@ -171,7 +108,7 @@ const Marksheet = ({ data, basicInfo, onBack }) => {
         {/* Download Button */}
         <button
           onClick={handleDownload}
-          className="mt-6 w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 flex items-center justify-center relative after:content-['Beta'] after:absolute after:top-[-10px] after:right-[-10px] after:bg-red-500 after:text-white after:text-xs after:font-bold after:py-1 after:px-2 after:rounded-full after:shadow-lg"
+          className="mt-6 w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 flex items-center justify-center relative after:content-['beta'] after:absolute after:top-[-10px] after:right-[-10px] after:bg-red-500 after:text-white after:text-xs after:font-bold after:py-1 after:px-2 after:rounded-full after:shadow-lg"
         >
           <FaDownload className="mr-2" /> Download PDF
         </button>

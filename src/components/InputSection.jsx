@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  FaSpinner,
-  FaUser,
-  FaCalendarAlt,
-  FaPaperPlane,
-  FaHistory,
-} from "react-icons/fa";
+import { FaSpinner, FaUser, FaCalendarAlt, FaHistory } from "react-icons/fa";
 import { IoTrashBinSharp } from "react-icons/io5";
-
+import { ImPower } from "react-icons/im";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
+import SearchHistory from "./SearchHistory";
 
 const InputSection = ({ onGenerate, loading }) => {
   const [studentId, setStudentId] = useState("");
@@ -17,6 +12,7 @@ const InputSection = ({ onGenerate, loading }) => {
   const [messageIndex, setMessageIndex] = useState(0);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [error, setError] = useState("");
 
   const messages = [
     "Are you ready?👀",
@@ -29,23 +25,66 @@ const InputSection = ({ onGenerate, loading }) => {
     "Let's get this party started 🎉",
   ];
 
+  const semesters = [
+    { id: "213", name: "Fall 2021" },
+    { id: "221", name: "Spring 2022" },
+    { id: "222", name: "Summer 2022" },
+    { id: "223", name: "Fall 2022" },
+    { id: "231", name: "Spring 2023" },
+    { id: "232", name: "Summer 2023" },
+    { id: "233", name: "Fall 2023" },
+    { id: "241", name: "Spring 2024" },
+    { id: "242", name: "Summer 2024" },
+    { id: "243", name: "Fall 2024" },
+    { id: "251", name: "Spring 2025" },
+  ];
+
+  const getSemesterName = (id) => {
+    const semester = semesters.find((sem) => sem.id === id);
+    return semester ? semester.name : id;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (studentId && semesterId) {
-      // Save to local storage
+      // Clear any previous errors
+      setError("");
+
+      // Create a new entry
       const newEntry = {
         studentId: studentId.trim(),
         semesterId: semesterId.trim(),
       };
-      const updatedHistory = [...history, newEntry];
-      setHistory(updatedHistory);
-      localStorage.setItem("transcriptHistory", JSON.stringify(updatedHistory));
+      const isDuplicate = history.some(
+        (entry) =>
+          entry.studentId === newEntry.studentId &&
+          entry.semesterId === newEntry.semesterId
+      );
 
-      onGenerate(studentId.trim(), semesterId.trim());
+      if (!isDuplicate) {
+        const updatedHistory = [...history, newEntry];
+        setHistory(updatedHistory);
+        localStorage.setItem(
+          "transcriptHistory",
+          JSON.stringify(updatedHistory)
+        );
+      }
+
+      onGenerate(newEntry.studentId, newEntry.semesterId);
       toast.success("Generating transcript 👀✨", {
         position: "top-center",
       });
     } else {
+      // Set error messages based on which input is empty
+      if (!studentId && !semesterId) {
+        setError("Student ID and Semester cannot be empty");
+      } else if (!studentId) {
+        setError("Student ID cannot be empty");
+      } else if (!semesterId) {
+        setError("Also select a semester");
+      }
+
       toast.error("Please fill out both fields 😡", {
         position: "top-center",
       });
@@ -59,7 +98,6 @@ const InputSection = ({ onGenerate, loading }) => {
     }
   }, [messageIndex]);
 
-  // Load history from local storage on component mount
   useEffect(() => {
     const storedHistory =
       JSON.parse(localStorage.getItem("transcriptHistory")) || [];
@@ -72,24 +110,10 @@ const InputSection = ({ onGenerate, loading }) => {
     toast.success("Search history cleared!", { position: "top-center" });
   };
 
-  const semesters = [
-    { id: "213", name: "Fall 2021" },
-    { id: "221", name: "Spring 2022" },
-    { id: "222", name: "Summer 2022" },
-    { id: "223", name: "Fall 2022" },
-    { id: "231", name: "Spring 2023" },
-    { id: "232", name: "Summer 2023" },
-    { id: "233", name: "Fall 2023" },
-    { id: "241", name: "Spring 2024" },
-    { id: "242", name: "Summer 2024" },
-    { id: "243", name: "Fall 2024", popularChoice: false }, // Mark Fall 2024 as popular choice
-    { id: "251", name: "Spring 2025" },
-  ];
-
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-white shadow-lg rounded-lg p-6 border border-gray-200"
+      className="space-y-4 bg-white drop-shadow-lg rounded-lg p-6 border border-gray-200"
     >
       <motion.div
         className="text-center text-gray-700 mb-4"
@@ -116,7 +140,7 @@ const InputSection = ({ onGenerate, loading }) => {
 
       <motion.div className="relative">
         <label className="block text-gray-700 font-medium mb-1">
-          Student ID:
+          Student ID
         </label>
         <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
           <FaUser className="text-blue-500 mr-2" />
@@ -128,17 +152,14 @@ const InputSection = ({ onGenerate, loading }) => {
             className="w-full bg-transparent focus:outline-none"
           />
         </div>
+        {error && !studentId && (
+          <div className="text-red-500 text-sm mt-2">{error}</div>
+        )}
       </motion.div>
 
       <motion.div className="relative">
-        <label className="block text-gray-700 font-medium mb-1">
-          Semester:
-        </label>
-        <div
-          className={`flex items-center border rounded-lg px-3 py-2 bg-gray-50 ${
-            semesterId === "243" ? "border-red-500" : "border-gray-300"
-          } focus-within:ring-2 focus-within:ring-blue-500 relative`}
-        >
+        <label className="block text-gray-700 font-medium mb-1">Semester</label>
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
           <FaCalendarAlt className="text-teal-500 mr-2" />
           <select
             value={semesterId}
@@ -151,21 +172,13 @@ const InputSection = ({ onGenerate, loading }) => {
             {semesters.map((semester) => (
               <option key={semester.id} value={semester.id}>
                 {semester.name}
-                {semester.popularChoice && (
-                  <span className="text-green-500 text-xs">
-                    (Popular Choice)
-                  </span>
-                )}
               </option>
             ))}
           </select>
-          {/* Hot indicator */}
-          {semesterId === "243" && (
-            <span className="absolute -top-1 -right-4 transform translate-x-1 -translate-y-1 bg-red-500 text-white text-xs font-semibold rounded-full px-1">
-              Popular
-            </span>
-          )}
         </div>
+        {error && !semesterId && (
+          <div className="text-red-500 text-sm mt-2">{error}</div>
+        )}
       </motion.div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -185,7 +198,7 @@ const InputSection = ({ onGenerate, loading }) => {
           {loading ? (
             <FaSpinner className="animate-spin mr-2" />
           ) : (
-            <FaPaperPlane className="mr-2" />
+            <ImPower className="mr-2 text-yellow-300" />
           )}
           {loading ? "Generating..." : "Generate Transcript"}
         </motion.button>
@@ -194,7 +207,10 @@ const InputSection = ({ onGenerate, loading }) => {
         <button
           type="button"
           onClick={() => setShowHistory(!showHistory)}
-          className="flex items-center text-blue-600 text-center justify-center border-2 p-1 rounded-lg"
+          className={`flex items-center text-blue-600 text-center justify-center border-2 p-1 rounded-lg ${
+            history.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={history.length === 0} // Disable the history button if no history
         >
           <FaHistory className="mr-2" />
           History
@@ -204,7 +220,10 @@ const InputSection = ({ onGenerate, loading }) => {
         <button
           type="button"
           onClick={clearHistory}
-          className="flex items-center text-rose-500 text-center justify-center border-2 p-1 rounded-lg"
+          className={`flex items-center text-rose-600 text-center justify-center border-2 p-1 rounded-lg ${
+            history.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={history.length === 0}
         >
           <IoTrashBinSharp className="mr-2" />
           Clear
@@ -213,33 +232,13 @@ const InputSection = ({ onGenerate, loading }) => {
 
       {/* Show History if toggled */}
       {showHistory && (
-        <div className="mt-4 p-4 border rounded-lg bg-gray-50 shadow-md">
-          <h3 className="font-semibold mb-2 text-lg">Search History</h3>
-          {history.length > 0 ? (
-            history.map((entry, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 mb-2 bg-white rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer"
-                onClick={() => {
-                  setStudentId(entry.studentId);
-                  setSemesterId(entry.semesterId);
-                }}
-              >
-                <div className="text-gray-800">
-                  <div className="font-medium">
-                    Student ID: {entry.studentId}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Semester ID: {entry.semesterId}
-                  </div>
-                </div>
-                <FaHistory className="text-blue-500" />
-              </div>
-            ))
-          ) : (
-            <div className="text-gray-600">No search history available.</div>
-          )}
-        </div>
+        <SearchHistory
+          history={history}
+          setStudentId={setStudentId}
+          setSemesterId={setSemesterId}
+          setShowHistory={setShowHistory}
+          getSemesterName={getSemesterName}
+        />
       )}
     </form>
   );

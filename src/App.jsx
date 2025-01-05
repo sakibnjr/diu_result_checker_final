@@ -4,9 +4,11 @@ import {
   Routes,
   Route,
   useNavigate,
-} from "react-router-dom"; // Import Router components
+  Navigate,
+} from "react-router-dom";
 import InputSection from "./components/InputSection";
 import Marksheet from "./components/Marksheet";
+import NotFoundPage from "./pages/NotFoundPage";
 import { fetchStudentData } from "./utils/api";
 import { FaSpinner } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
@@ -15,7 +17,7 @@ import Header from "./components/Header";
 const App = () => {
   const [studentData, setStudentData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleGenerate = async (studentId, semesterId) => {
     setLoading(true);
@@ -27,7 +29,7 @@ const App = () => {
         toast.success("Process Completed! 🥂", {
           position: "top-center",
         });
-        navigate("/marksheet"); // Navigate to Marksheet route
+        navigate("/marksheet");
       } else {
         toast.error("No results found. Try again later! 😴", {
           position: "top-center",
@@ -41,12 +43,9 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 to-purple-100 flex items-center justify-center">
       <Toaster position="top-right" />
-      <div className="md:w-4/5 p-8 rounded-2xl  bg-white/30 shadow-lg relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/10  rounded-2xl pointer-events-none"></div>
-        <div className="absolute inset-0 -m-1 blur-lg bg-gradient-to-r from-blue-300/10 to-purple-300/10 rounded-2xl pointer-events-none"></div>
-
+      <div className="p-2 rounded-2xl relative overflow-hidden">
         <Header />
 
         {loading && (
@@ -55,7 +54,6 @@ const App = () => {
           </div>
         )}
 
-        {/* Use Routes to define paths */}
         <Routes>
           <Route
             path="/"
@@ -66,13 +64,18 @@ const App = () => {
           <Route
             path="/marksheet"
             element={
-              <Marksheet
-                data={studentData?.result}
-                basicInfo={studentData?.basicInfo}
-              />
+              studentData ? (
+                <Marksheet
+                  data={studentData?.result}
+                  basicInfo={studentData?.basicInfo}
+                />
+              ) : (
+                <Navigate to="/404" replace />
+              )
             }
           />
-          {/* Add more routes as needed */}
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </div>
     </div>
