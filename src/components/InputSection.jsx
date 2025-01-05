@@ -14,7 +14,8 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState("");
   const [autoRetry, setAutoRetry] = useState(false); // Add state for Auto Retry
-  const [autoRetryIndicator, setAutoRetryIndicator] = useState(false); // Indicator state
+  const [retryInterval, setRetryInterval] = useState(null); // Store the retry interval to clear it later
+  const [isRetrying, setIsRetrying] = useState(false); // Track if retrying is in progress
 
   const messages = [
     "Are you ready?👀",
@@ -75,16 +76,16 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
 
       // Handle auto retry feature
       if (autoRetry) {
-        setAutoRetryIndicator(true); // Show the indicator when auto-retry is active
-        const retryInterval = setInterval(async () => {
+        setIsRetrying(true);
+        const interval = setInterval(async () => {
           try {
             const data = await fetchStudentData(
               newEntry.studentId,
               newEntry.semesterId
             );
             if (data.result && Object.keys(data.result).length > 0) {
-              clearInterval(retryInterval);
-              setAutoRetryIndicator(false); // Hide the indicator when the retry succeeds
+              clearInterval(interval);
+              setIsRetrying(false);
               onGenerate(newEntry.studentId, newEntry.semesterId);
               toast.success("Generating transcript 👀✨", {
                 position: "top-center",
@@ -94,6 +95,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
             toast.error("Retry failed", error);
           }
         }, 2000); // Retry every 2 seconds
+        setRetryInterval(interval); // Store the interval ID
       } else {
         // Normal submission if auto retry is disabled
         onGenerate(newEntry.studentId, newEntry.semesterId);
@@ -110,6 +112,14 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
       }
 
       toast.error("Please fill out both fields 😡", { position: "top-center" });
+    }
+  };
+
+  const cancelRetry = () => {
+    if (retryInterval) {
+      clearInterval(retryInterval);
+      setIsRetrying(false);
+      toast.success("Auto Retry cancelled", { position: "top-center" });
     }
   };
 
@@ -216,17 +226,17 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
             className="mr-2"
           />
           <span className="text-sm text-gray-600">
-            Enable auto-retry to keep trying until data is received.
+            Enable auto-retry to keep trying until result is received.
           </span>
         </div>
-      </motion.div>
 
-      {/* Auto Retry Indicator */}
-      {autoRetryIndicator && (
-        <div className="text-green-600 text-sm mt-2">
-          Auto Retry is Enabled. We are trying to fetch data...
-        </div>
-      )}
+        {/* Auto Retry Indicator */}
+        {autoRetry && (
+          <div className="mt-2 text-green-600 text-sm font-semibold">
+            Auto Retry is Enabled
+          </div>
+        )}
+      </motion.div>
 
       <div className="grid grid-cols-2 gap-2">
         {/* Generate Button */}
@@ -276,6 +286,19 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
           Clear
         </button>
       </div>
+
+      {/* Cancel Retry Button */}
+      {isRetrying && (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={cancelRetry}
+            className="w-full px-4 py-2 bg-red-500 text-white rounded-lg"
+          >
+            Cancel Retry
+          </button>
+        </div>
+      )}
 
       {/* Show History if toggled */}
       {showHistory && (
