@@ -170,6 +170,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         </motion.span>
       </motion.div>
 
+      {/* Student ID Section */}
       <motion.div className="relative">
         <label className="block text-gray-700 font-medium mb-1">
           Student ID
@@ -189,9 +190,10 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         )}
       </motion.div>
 
+      {/* Semester Section */}
       <motion.div className="relative">
         <label className="block text-gray-700 font-medium mb-1">Semester</label>
-        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
+        <div className="relative flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
           <FaCalendarAlt className="text-teal-500 mr-2" />
           <select
             value={semesterId}
@@ -207,6 +209,12 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
               </option>
             ))}
           </select>
+          {/* Display the "Popular" label if semesterId is 243 */}
+          {semesterId === "243" && (
+            <span className="absolute -top-2 -right-2 transform translate-x-1 -translate-y-1 bg-red-500 text-white text-xs font-semibold rounded-full px-1">
+              Popular
+            </span>
+          )}
         </div>
         {error && !semesterId && (
           <div className="text-red-500 text-sm mt-2">{error}</div>
@@ -215,26 +223,58 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
 
       {/* Auto Retry Toggle */}
       <motion.div className="relative">
-        <label className="block text-gray-700 font-medium mb-1">
-          Auto Retry
-        </label>
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <label className="block text-gray-700 font-medium mb-1">
+            Auto Retry
+          </label>
           <input
             type="checkbox"
             checked={autoRetry}
             onChange={() => setAutoRetry((prev) => !prev)}
-            className="mr-2"
+            className="size-4"
           />
-          <span className="text-sm text-gray-600">
-            Enable auto-retry to keep trying until result is received.
-          </span>
         </div>
 
+        <span className="text-xs text-gray-600">
+          Enable to keep trying until result is received.
+        </span>
+
         {/* Auto Retry Indicator */}
-        {autoRetry && (
-          <div className="mt-2 text-green-600 text-sm font-semibold">
+        {/* {autoRetry && (
+          <motion.div
+            className="mt-2 text-green-600 text-sm font-semibold"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 20,
+            }}
+          >
             Auto Retry is Enabled | Don't close browser
-          </div>
+          </motion.div>
+        )} */}
+
+        {/* Yes, Interesting Animation */}
+        {autoRetry && (
+          <motion.div
+            className="mt-4 text-blue-500 text-lg font-semibold"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 20,
+            }}
+          >
+            <span className="text-yellow-500 text-2xl animate-pulse">
+              Enabled!
+            </span>{" "}
+            {""}
+            Don't close browser...
+          </motion.div>
         )}
       </motion.div>
 
@@ -267,7 +307,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
           className={`flex items-center text-blue-600 text-center justify-center border-2 p-1 rounded-lg ${
             history.length === 0 ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          disabled={history.length === 0} // Disable the history button if no history
+          disabled={history.length === 0}
         >
           <FaHistory className="mr-2" />
           History
