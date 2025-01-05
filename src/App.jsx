@@ -58,7 +58,11 @@ const App = () => {
           <Route
             path="/"
             element={
-              <InputSection onGenerate={handleGenerate} loading={loading} />
+              <InputSection
+                onGenerate={handleGenerate}
+                loading={loading}
+                fetchStudentData={fetchStudentData}
+              />
             }
           />
           <Route

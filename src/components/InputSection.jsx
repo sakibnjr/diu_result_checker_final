@@ -6,13 +6,15 @@ import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 import SearchHistory from "./SearchHistory";
 
-const InputSection = ({ onGenerate, loading }) => {
+const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
   const [studentId, setStudentId] = useState("");
   const [semesterId, setSemesterId] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState("");
+  const [autoRetry, setAutoRetry] = useState(false); // Add state for Auto Retry
+  const [autoRetryIndicator, setAutoRetryIndicator] = useState(false); // Indicator state
 
   const messages = [
     "Are you ready?👀",
@@ -71,10 +73,32 @@ const InputSection = ({ onGenerate, loading }) => {
         );
       }
 
-      onGenerate(newEntry.studentId, newEntry.semesterId);
-      toast.success("Generating transcript 👀✨", {
-        position: "top-center",
-      });
+      // Handle auto retry feature
+      if (autoRetry) {
+        setAutoRetryIndicator(true); // Show the indicator when auto-retry is active
+        const retryInterval = setInterval(async () => {
+          try {
+            const data = await fetchStudentData(
+              newEntry.studentId,
+              newEntry.semesterId
+            );
+            if (data.result && Object.keys(data.result).length > 0) {
+              clearInterval(retryInterval);
+              setAutoRetryIndicator(false); // Hide the indicator when the retry succeeds
+              onGenerate(newEntry.studentId, newEntry.semesterId);
+              toast.success("Generating transcript 👀✨", {
+                position: "top-center",
+              });
+            }
+          } catch (error) {
+            toast.error("Retry failed", error);
+          }
+        }, 2000); // Retry every 2 seconds
+      } else {
+        // Normal submission if auto retry is disabled
+        onGenerate(newEntry.studentId, newEntry.semesterId);
+        toast.success("Generating transcript 👀✨", { position: "top-center" });
+      }
     } else {
       // Set error messages based on which input is empty
       if (!studentId && !semesterId) {
@@ -85,9 +109,7 @@ const InputSection = ({ onGenerate, loading }) => {
         setError("Also select a semester");
       }
 
-      toast.error("Please fill out both fields 😡", {
-        position: "top-center",
-      });
+      toast.error("Please fill out both fields 😡", { position: "top-center" });
     }
   };
 
@@ -180,6 +202,31 @@ const InputSection = ({ onGenerate, loading }) => {
           <div className="text-red-500 text-sm mt-2">{error}</div>
         )}
       </motion.div>
+
+      {/* Auto Retry Toggle */}
+      <motion.div className="relative">
+        <label className="block text-gray-700 font-medium mb-1">
+          Auto Retry
+        </label>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            checked={autoRetry}
+            onChange={() => setAutoRetry((prev) => !prev)}
+            className="mr-2"
+          />
+          <span className="text-sm text-gray-600">
+            Enable auto-retry to keep trying until data is received.
+          </span>
+        </div>
+      </motion.div>
+
+      {/* Auto Retry Indicator */}
+      {autoRetryIndicator && (
+        <div className="text-green-600 text-sm mt-2">
+          Auto Retry is Enabled. We are trying to fetch data...
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         {/* Generate Button */}
