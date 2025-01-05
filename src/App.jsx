@@ -24,12 +24,12 @@ const App = () => {
       setStudentData(data);
 
       if (data.result && Object.keys(data.result).length > 0) {
-        toast.success("Process Completed!", {
+        toast.success("Process Completed! 🥂", {
           position: "top-center",
         });
         navigate("/marksheet"); // Navigate to Marksheet route
       } else {
-        toast.error("No results found. Try again later!", {
+        toast.error("No results found. Try again later! 😴", {
           position: "top-center",
         });
       }
