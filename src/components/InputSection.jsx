@@ -233,7 +233,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         {/* Auto Retry Indicator */}
         {autoRetry && (
           <div className="mt-2 text-green-600 text-sm font-semibold">
-            Auto Retry is Enabled
+            Auto Retry is Enabled | Don't close browser
           </div>
         )}
       </motion.div>

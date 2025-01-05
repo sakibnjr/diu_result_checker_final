@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const fetchStudentData = async (studentId, semesterId) => {
   try {
-    const apiUrl = `http://software.diu.edu.bd:8006/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
-    const studentInfoUrl = `http://software.diu.edu.bd:8006/result/studentInfo?studentId=${studentId}`;
+    const apiUrl = `/api/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
+    const studentInfoUrl = `/api/result/studentInfo?studentId=${studentId}`;
 
     const [resultResponse, infoResponse] = await Promise.all([
       axios.get(apiUrl),
