@@ -31,7 +31,7 @@ const GenerateButton = ({
         ) : (
           <FaSearch className="mr-2 text-white font-bold" />
         )}
-        {loading ? "Searching..." : "Search"}
+        {loading ? "Searching . . ." : "Search"}
       </motion.button>
 
       {/* History Button */}

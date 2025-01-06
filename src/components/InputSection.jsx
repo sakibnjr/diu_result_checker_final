@@ -8,7 +8,7 @@ import AutoRetry from "./InputFields/AutoRetry";
 import GenerateButton from "./InputFields/GenerateButtonArea";
 import CancelRetry from "./InputFields/CancelRetry";
 
-const InputSection = ({ onGenerate, fetchStudentData }) => {
+const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
   const [studentId, setStudentId] = useState("");
   const [semesterId, setSemesterId] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
@@ -82,7 +82,13 @@ const InputSection = ({ onGenerate, fetchStudentData }) => {
               });
             }
           } catch (error) {
-            toast.error("Retry failed", error);
+            toast.error(
+              "Retry failed",
+              {
+                position: "top-center",
+              },
+              error
+            );
           }
         }, 2000); // Retry every 2 seconds
         setRetryInterval(interval); // Store the interval ID
@@ -101,7 +107,7 @@ const InputSection = ({ onGenerate, fetchStudentData }) => {
         setError("Also select a semester");
       }
 
-      toast.error("Please fill out both fields 😡", { position: "top-center" });
+      toast.error("Fill out both fields 😡", { position: "top-center" });
     }
   };
 
@@ -155,7 +161,7 @@ const InputSection = ({ onGenerate, fetchStudentData }) => {
       <AutoRetry autoRetry={autoRetry} setAutoRetry={setAutoRetry} />
 
       <GenerateButton
-        loading={isRetrying}
+        loading={loading}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
         history={history}
