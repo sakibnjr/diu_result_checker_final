@@ -23,7 +23,7 @@ const SgpaAnimation = ({ showCGPA, cgpa }) => {
     <AnimatePresence>
       {showCGPA && (
         <motion.div
-          className="absolute md:fixed inset-0 h-screen -top-10 md:h-auto flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-500 bg-opacity-90 z-50"
+          className="absolute md:fixed inset-0 h-screen -top-14 md:h-auto flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-500 bg-opacity-90 z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

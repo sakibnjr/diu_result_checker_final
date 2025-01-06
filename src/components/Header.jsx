@@ -1,11 +1,11 @@
-import { RiAiGenerateText } from "react-icons/ri";
+import { DiYii } from "react-icons/di";
 
 import React from "react";
 
 const Header = () => {
   return (
-    <h1 className="text-xl md:text-3xl font-bold text-gray-800 text-center m-4 relative z-10">
-      <RiAiGenerateText className="inline-block mr-2" /> Transcript Generator
+    <h1 className="text-3xl font-bold md:text-4xl font-[Italianno] text-gray-900 tracking-widest text-center flex items-center justify-center m-4">
+      <DiYii className="mr-2" /> Daffodil Archives
     </h1>
   );
 };

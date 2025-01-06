@@ -3,11 +3,11 @@ import { FaDownload } from "react-icons/fa";
 import { TbError404 } from "react-icons/tb";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import StudentInfo from "./StudentInfo";
-import CourseList from "./CourseList";
-import UniversityInfo from "./UniversityInfo";
-import ResultSummary from "./ResultSummary";
-import SgpaAnimation from "./SgpaAnimation";
+import StudentInfo from "../components/Transcript/StudentInfo";
+import CourseList from "../components/Transcript/CourseList";
+import UniversityInfo from "../components/Transcript/UniversityInfo";
+import ResultSummary from "../components/Transcript/ResultSummary";
+import SgpaAnimation from "../components/Transcript/SgpaAnimation";
 
 const Marksheet = ({ data, basicInfo, onBack }) => {
   const [isMobile, setIsMobile] = useState(false);

@@ -7,7 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import InputSection from "./components/InputSection";
-import Marksheet from "./components/Marksheet";
+import Marksheet from "./pages/Marksheet";
 import NotFoundPage from "./pages/NotFoundPage";
 import { fetchStudentData } from "./utils/api";
 import { FaSpinner } from "react-icons/fa";

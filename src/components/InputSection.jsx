@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner, FaUser, FaCalendarAlt, FaHistory } from "react-icons/fa";
-import { IoTrashBinSharp } from "react-icons/io5";
-import { ImPower } from "react-icons/im";
 import { toast } from "react-hot-toast";
-import { motion } from "framer-motion";
 import SearchHistory from "./SearchHistory";
+import WelcomeText from "./InputFields/WelcomeText";
+import StudentId from "./InputFields/StudentId";
+import Semester from "./InputFields/Semester";
+import AutoRetry from "./InputFields/AutoRetry";
+import GenerateButton from "./InputFields/GenerateButtonArea";
+import CancelRetry from "./InputFields/CancelRetry";
 
-const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
+const InputSection = ({ onGenerate, fetchStudentData }) => {
   const [studentId, setStudentId] = useState("");
   const [semesterId, setSemesterId] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
@@ -17,16 +19,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
   const [retryInterval, setRetryInterval] = useState(null); // Store the retry interval to clear it later
   const [isRetrying, setIsRetrying] = useState(false); // Track if retrying is in progress
 
-  const messages = [
-    "Are you ready?👀",
-    "Let's see what you have done🐸",
-    "Brace yourself! 🏆",
-    "Your success is just a click away 🚀",
-    "Here comes the magic! 🎩✨",
-    "Time to shine! 🌟",
-    "The wait is almost over ⏳",
-    "Let's get this party started 🎉",
-  ];
+  const messages = ["Find your academic records! 📜"];
 
   const semesters = [
     { id: "213", name: "Fall 2021" },
@@ -51,10 +44,8 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
     e.preventDefault();
 
     if (studentId && semesterId) {
-      // Clear any previous errors
       setError("");
 
-      // Create a new entry
       const newEntry = {
         studentId: studentId.trim(),
         semesterId: semesterId.trim(),
@@ -74,7 +65,6 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         );
       }
 
-      // Handle auto retry feature
       if (autoRetry) {
         setIsRetrying(true);
         const interval = setInterval(async () => {
@@ -147,200 +137,33 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
       onSubmit={handleSubmit}
       className="space-y-4 bg-white drop-shadow-lg rounded-lg p-6 border border-gray-200"
     >
-      <motion.div
-        className="text-center text-gray-700 mb-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.span
-          key={messageIndex}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{
-            duration: 0.5,
-            ease: "easeInOut",
-            delay: 0,
-          }}
-          className="block text-sm font-semibold"
-        >
-          {messages[messageIndex]}
-        </motion.span>
-      </motion.div>
+      <WelcomeText messages={messages} messageIndex={messageIndex} />
 
-      {/* Student ID Section */}
-      <motion.div className="relative">
-        <label className="block text-gray-700 font-medium mb-1">
-          Student ID
-        </label>
-        <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
-          <FaUser className="text-blue-500 mr-2" />
-          <input
-            type="text"
-            value={studentId}
-            placeholder="XXX-XX-XXXX"
-            onChange={(e) => setStudentId(e.target.value)}
-            className="w-full bg-transparent focus:outline-none"
-          />
-        </div>
-        {error && !studentId && (
-          <div className="text-red-500 text-sm mt-2">{error}</div>
-        )}
-      </motion.div>
+      <StudentId
+        studentId={studentId}
+        setStudentId={setStudentId}
+        error={error}
+      />
 
-      {/* Semester Section */}
-      <motion.div className="relative">
-        <label className="block text-gray-700 font-medium mb-1">Semester</label>
-        <div className="relative flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
-          <FaCalendarAlt className="text-teal-500 mr-2" />
-          <select
-            value={semesterId}
-            onChange={(e) => setSemesterId(e.target.value)}
-            className="w-full bg-transparent focus:outline-none"
-          >
-            <option value="" disabled>
-              Select Semester
-            </option>
-            {semesters.map((semester) => (
-              <option key={semester.id} value={semester.id}>
-                {semester.name}
-              </option>
-            ))}
-          </select>
-          {/* Display the "Popular" label if semesterId is 243 */}
-          {semesterId === "243" && (
-            <span className="absolute -top-2 -right-2 transform translate-x-1 -translate-y-1 bg-red-500 text-white text-xs font-semibold rounded-full px-1">
-              Popular
-            </span>
-          )}
-        </div>
-        {error && !semesterId && (
-          <div className="text-red-500 text-sm mt-2">{error}</div>
-        )}
-      </motion.div>
+      <Semester
+        semesterId={semesterId}
+        setSemesterId={setSemesterId}
+        semesters={semesters}
+        error={error}
+      />
 
-      {/* Auto Retry Toggle */}
-      <motion.div className="relative">
-        <div className="flex items-center gap-2">
-          <label className="block text-gray-700 font-medium mb-1">
-            Auto Retry
-          </label>
-          <input
-            type="checkbox"
-            checked={autoRetry}
-            onChange={() => setAutoRetry((prev) => !prev)}
-            className="size-4"
-          />
-        </div>
+      <AutoRetry autoRetry={autoRetry} setAutoRetry={setAutoRetry} />
 
-        <span className="text-xs text-gray-600">
-          Enable to keep trying until result is received.
-        </span>
+      <GenerateButton
+        loading={isRetrying}
+        showHistory={showHistory}
+        setShowHistory={setShowHistory}
+        history={history}
+        clearHistory={clearHistory}
+      />
 
-        {/* Auto Retry Indicator */}
-        {/* {autoRetry && (
-          <motion.div
-            className="mt-2 text-green-600 text-sm font-semibold"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 20,
-            }}
-          >
-            Auto Retry is Enabled | Don't close browser
-          </motion.div>
-        )} */}
+      {isRetrying && <CancelRetry cancelRetry={cancelRetry} />}
 
-        {/* Yes, Interesting Animation */}
-        {autoRetry && (
-          <motion.div
-            className="mt-4 text-blue-500 text-lg font-semibold"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 20,
-            }}
-          >
-            <span className="text-yellow-500 text-2xl animate-pulse">
-              Enabled!
-            </span>{" "}
-            {""}
-            Don't close browser...
-          </motion.div>
-        )}
-      </motion.div>
-
-      <div className="grid grid-cols-2 gap-2">
-        {/* Generate Button */}
-        <motion.button
-          type="submit"
-          className={`col-span-2 w-full px-4 py-2 text-white rounded-lg flex items-center justify-center ${
-            loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-500"
-          }`}
-          disabled={loading}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {loading ? (
-            <FaSpinner className="animate-spin mr-2" />
-          ) : (
-            <ImPower className="mr-2 text-yellow-300" />
-          )}
-          {loading ? "Generating..." : "Generate Transcript"}
-        </motion.button>
-
-        {/* History Button */}
-        <button
-          type="button"
-          onClick={() => setShowHistory(!showHistory)}
-          className={`flex items-center text-blue-600 text-center justify-center border-2 p-1 rounded-lg ${
-            history.length === 0 ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={history.length === 0}
-        >
-          <FaHistory className="mr-2" />
-          History
-        </button>
-
-        {/* Clear History Button */}
-        <button
-          type="button"
-          onClick={clearHistory}
-          className={`flex items-center text-rose-600 text-center justify-center border-2 p-1 rounded-lg ${
-            history.length === 0 ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={history.length === 0}
-        >
-          <IoTrashBinSharp className="mr-2" />
-          Clear
-        </button>
-      </div>
-
-      {/* Cancel Retry Button */}
-      {isRetrying && (
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={cancelRetry}
-            className="w-full px-4 py-2 bg-red-500 text-white rounded-lg"
-          >
-            Cancel Retry
-          </button>
-        </div>
-      )}
-
-      {/* Show History if toggled */}
       {showHistory && (
         <SearchHistory
           history={history}
