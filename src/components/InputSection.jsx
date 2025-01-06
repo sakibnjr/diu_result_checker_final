@@ -166,6 +166,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         setShowHistory={setShowHistory}
         history={history}
         clearHistory={clearHistory}
+        isRetrying={isRetrying}
       />
 
       {isRetrying && <CancelRetry cancelRetry={cancelRetry} />}

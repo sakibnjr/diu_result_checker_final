@@ -11,6 +11,7 @@ const GenerateButton = ({
   setShowHistory,
   history,
   clearHistory,
+  isRetrying,
 }) => {
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -26,12 +27,12 @@ const GenerateButton = ({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {loading ? (
+        {loading || isRetrying ? (
           <FaSpinner className="animate-spin mr-2" />
         ) : (
           <FaSearch className="mr-2 text-white font-bold" />
         )}
-        {loading ? "Searching . . ." : "Search"}
+        {loading || isRetrying ? "Searching . . ." : "Search"}
       </motion.button>
 
       {/* History Button */}
