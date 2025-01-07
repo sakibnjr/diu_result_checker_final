@@ -19,7 +19,10 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
   const [retryInterval, setRetryInterval] = useState(null); // Store the retry interval to clear it later
   const [isRetrying, setIsRetrying] = useState(false); // Track if retrying is in progress
 
-  const messages = ["Find your academic records! 📜"];
+  const messages = [
+    "Find your academic records! 📜",
+    "Make sure to complete teaching evaluation ⚠️",
+  ];
 
   const semesters = [
     { id: "213", name: "Fall 2021" },
@@ -42,6 +45,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const controller = new AbortController();
 
     if (studentId && semesterId) {
       setError("");
@@ -109,6 +113,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
 
       toast.error("Fill out both fields 😡", { position: "top-center" });
     }
+    return () => controller.abort();
   };
 
   const cancelRetry = () => {
@@ -121,7 +126,7 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
 
   useEffect(() => {
     if (messageIndex < messages.length - 1) {
-      const timeout = setTimeout(() => setMessageIndex(messageIndex + 1), 1500);
+      const timeout = setTimeout(() => setMessageIndex(messageIndex + 1), 2500);
       return () => clearTimeout(timeout);
     }
   }, [messageIndex]);

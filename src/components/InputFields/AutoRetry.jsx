@@ -5,7 +5,7 @@ import { FaCheckCircle, FaRegCircle } from "react-icons/fa";
 const AutoRetry = ({ autoRetry, setAutoRetry }) => {
   return (
     <motion.div className="relative">
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         <label className="block text-gray-700 font-medium mb-1">
           Auto Retry
         </label>
@@ -16,9 +16,9 @@ const AutoRetry = ({ autoRetry, setAutoRetry }) => {
           className="size-4"
           whileTap={{ scale: 1.1 }}
         />
-      </div>
+      </div> */}
 
-      <span className="text-xs text-gray-600 flex items-center gap-1">
+      {/* <span className="text-xs text-gray-600 flex items-center gap-1">
         {autoRetry ? (
           <>
             <FaCheckCircle className="text-green-500 size-3" />
@@ -41,7 +41,7 @@ const AutoRetry = ({ autoRetry, setAutoRetry }) => {
             Enable to keep trying until result is received.
           </>
         )}
-      </span>
+      </span> */}
     </motion.div>
   );
 };

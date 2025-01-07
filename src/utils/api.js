@@ -1,42 +1,22 @@
 import axios from "axios";
 
-// Retry logic for handling transient errors
-const fetchWithRetry = async (url, config, retries = 3) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await axios.get(url, config);
-    } catch (error) {
-      if (i === retries - 1) {
-        console.error(
-          `Error after ${retries} retries for URL: ${url}`,
-          error.message
-        );
-        throw error; // Throw the error after exhausting retries
-      }
-      console.warn(
-        `Retrying (${i + 1}/${retries}) for URL: ${url} due to error:`,
-        error.message
-      );
-    }
-  }
-};
-
-export const fetchStudentData = async (studentId, semesterId) => {
-  const apiUrl = `/api/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
-  const studentInfoUrl = `/api/result/studentInfo?studentId=${studentId}`;
-
-  const axiosConfig = {
-    timeout: 600000, // Set timeout to 10 minutes (600,000 ms)
-  };
-
+export const fetchStudentData = async (studentId, semesterId, signal) => {
   try {
-    // Use Promise.all with retry logic
+    const apiUrl = `/api/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
+    const studentInfoUrl = `/api/result/studentInfo?studentId=${studentId}`;
+
+    // Attach signal to the Axios configuration
+    const axiosConfig = {
+      timeout: 600000, // Set timeout to 10 minutes
+      signal, // Attach AbortController signal for cancellation
+    };
+
+    // Fetch both APIs concurrently with Promise.all
     const [resultResponse, infoResponse] = await Promise.all([
-      fetchWithRetry(apiUrl, axiosConfig),
-      fetchWithRetry(studentInfoUrl, axiosConfig),
+      axios.get(apiUrl, axiosConfig),
+      axios.get(studentInfoUrl, axiosConfig),
     ]);
 
-    // Validate responses
     if (resultResponse.status !== 200 || infoResponse.status !== 200) {
       throw new Error("Failed to fetch data. Please check the entered IDs.");
     }
@@ -46,18 +26,12 @@ export const fetchStudentData = async (studentId, semesterId) => {
       basicInfo: infoResponse.data,
     };
   } catch (error) {
-    // Handle 502 or other network/server errors
-    if (error.response) {
-      console.error(
-        `API error: ${error.response.status} - ${error.response.statusText}`
-      );
-    } else if (error.code === "ECONNABORTED") {
-      console.error("Request timed out:", error.message);
+    if (axios.isCancel(error)) {
+      console.error("Request canceled:", error.message);
+      throw new Error("Request was canceled.");
     } else {
-      console.error("Network error or unexpected issue:", error.message);
+      console.error("Error fetching student data:", error.message);
+      throw error; // Re-throw the error to handle it in the calling function
     }
-    throw new Error(
-      "An error occurred while fetching student data. Please try again later."
-    );
   }
 };
