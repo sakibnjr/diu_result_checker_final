@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const fetchStudentData = async (studentId, semesterId, signal) => {
   try {
-    const apiUrl = `/api/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
-    const studentInfoUrl = `/api/result/studentInfo?studentId=${studentId}`;
+    const apiUrl = `https://diurc.onrender.com/api/result?grecaptcha=&semesterId=${semesterId}&studentId=${studentId}`;
+    const studentInfoUrl = `https://diurc.onrender.com/api/result/studentInfo?studentId=${studentId}`;
 
     // Attach signal to the Axios configuration
     const axiosConfig = {
