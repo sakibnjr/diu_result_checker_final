@@ -4,20 +4,15 @@ import SearchHistory from "./SearchHistory";
 import WelcomeText from "./InputFields/WelcomeText";
 import StudentId from "./InputFields/StudentId";
 import Semester from "./InputFields/Semester";
-import AutoRetry from "./InputFields/AutoRetry";
 import GenerateButton from "./InputFields/GenerateButtonArea";
-import CancelRetry from "./InputFields/CancelRetry";
 
-const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
+const InputSection = ({ onGenerate, loading }) => {
   const [studentId, setStudentId] = useState("");
   const [semesterId, setSemesterId] = useState("");
   const [messageIndex, setMessageIndex] = useState(0);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState("");
-  const [autoRetry, setAutoRetry] = useState(false); // Add state for Auto Retry
-  const [retryInterval, setRetryInterval] = useState(null); // Store the retry interval to clear it later
-  const [isRetrying, setIsRetrying] = useState(false); // Track if retrying is in progress
 
   const messages = [
     "Find your academic records! 📜",
@@ -69,38 +64,9 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         );
       }
 
-      if (autoRetry) {
-        setIsRetrying(true);
-        const interval = setInterval(async () => {
-          try {
-            const data = await fetchStudentData(
-              newEntry.studentId,
-              newEntry.semesterId
-            );
-            if (data.result && Object.keys(data.result).length > 0) {
-              clearInterval(interval);
-              setIsRetrying(false);
-              onGenerate(newEntry.studentId, newEntry.semesterId);
-              toast.success("Generating transcript 👀✨", {
-                position: "top-center",
-              });
-            }
-          } catch (error) {
-            toast.error(
-              "Retry failed",
-              {
-                position: "top-center",
-              },
-              error
-            );
-          }
-        }, 2000); // Retry every 2 seconds
-        setRetryInterval(interval); // Store the interval ID
-      } else {
-        // Normal submission if auto retry is disabled
-        onGenerate(newEntry.studentId, newEntry.semesterId);
-        toast.success("Generating transcript 👀✨", { position: "top-center" });
-      }
+      // Normal submission (without Auto Retry)
+      onGenerate(newEntry.studentId, newEntry.semesterId);
+      toast.success("Generating transcript 👀✨", { position: "top-center" });
     } else {
       // Set error messages based on which input is empty
       if (!studentId && !semesterId) {
@@ -113,15 +79,8 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
 
       toast.error("Fill out both fields 😡", { position: "top-center" });
     }
-    return () => controller.abort();
-  };
 
-  const cancelRetry = () => {
-    if (retryInterval) {
-      clearInterval(retryInterval);
-      setIsRetrying(false);
-      toast.success("Auto Retry cancelled", { position: "top-center" });
-    }
+    return () => controller.abort();
   };
 
   useEffect(() => {
@@ -163,18 +122,13 @@ const InputSection = ({ onGenerate, loading, fetchStudentData }) => {
         error={error}
       />
 
-      <AutoRetry autoRetry={autoRetry} setAutoRetry={setAutoRetry} />
-
       <GenerateButton
         loading={loading}
         showHistory={showHistory}
         setShowHistory={setShowHistory}
         history={history}
         clearHistory={clearHistory}
-        isRetrying={isRetrying}
       />
-
-      {isRetrying && <CancelRetry cancelRetry={cancelRetry} />}
 
       {showHistory && (
         <SearchHistory
